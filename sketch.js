@@ -49,7 +49,7 @@ function setup() {
   time=rtime=atime=0;
   addTime=100;
   incTime=1000;
-  resetTime=15000;
+  resetTime=60000;
 
   bgColor=color('#F2F4F3');
   dotColor=color(invertColor('#F2F4F3'))
