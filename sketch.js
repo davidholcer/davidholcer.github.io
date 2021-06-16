@@ -39,7 +39,7 @@ function setup() {
   borderDist=50;
   lineDist=20;
   circleRadius=map(min(windowWidth,windowHeight),500,1200,4,7);
-  lineWeight=4;
+  lineWeight=5;
 
   iLines=iBg=false;
   autom=pautom=lines=true;
