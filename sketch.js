@@ -1,5 +1,7 @@
 'use strict';
 
+//TODO: comment code, update github page, post
+
 let points=[];
 let total;
 let P,newP1;
@@ -7,21 +9,23 @@ let speed;
 let thresholdDist,borderDist,lineDist,circleRadius;
 let si,selector;
 let minD;
-let incTime,resetTime,addTime;
-let time,rtime,atime;
+let incTime,resetTime,addTime,bgTime,lineTime;
+let time,rtime,atime,btime,ltime;
 let colorScheme;//,ocolorScheme;
-let lines,autom,pautom,reset,preset,pLine,bPoint,pPoint;
+//booleans
+let lines,autom,pautom,reset,preset,pLine,bPoint,pPoint,iLines,iBg;
 let lineWeight;
+let stype;
 let bgColor,dotColor;
 let paused;
 let cs;
+//controls change in speed
 let dSpeed,spdAmt;
 let pointsLimit;
 let cColors;
 let opacity,opacityAmt;
 
 function setup() {
-  //console.log("batataaas");
   createCanvas(windowWidth,windowHeight);
   total=int(random(30,60));
   pointsLimit=500;
@@ -29,72 +33,50 @@ function setup() {
   //console.log(total);
   //total=2;
 
-  //smooth(8);
-  //console.log(invertColor('#F2F4F3'))
-
   paused=false;
 
   thresholdDist=2;
   borderDist=50;
   lineDist=20;
-  circleRadius=7;
+  circleRadius=3.5;
   lineWeight=4;
 
-  autom=pautom=lines=pLine=true;
+  iLines=iBg=false;
+  autom=pautom=lines=true;
+  pLine=true;
   preset=reset=true;
   bPoint=pPoint=false;
   opacity=true;
-  opacityAmt=100;
+  opacityAmt=200;
 
-  time=rtime=atime=0;
+  time=rtime=atime=btime=ltime=stype=0;
+  lineTime=1000;
   addTime=100;
   incTime=1000;
   resetTime=60000;
+  bgTime=300000;
 
   bgColor=color('#F2F4F3');
   dotColor=color(invertColor('#F2F4F3'))
   //ocolorScheme=[[color('#333333'), color('#666A86'), color('#FF6700'), color('#E8DDB5')],[color('#238DA5'),color('#599D6B'), color('#FDBC2E'),color('#C84A4D'), color('#2A303E') ]];
-  colorScheme=[[color('#333333'), color('#666A86'), color('#FF6700'), color('#E8DDB5')],[color('#238DA5'),color('#599D6B'), color('#FDBC2E'),color('#C84A4D'), color('#2A303E') ],[color('#FA8334'),color('#1E3888'),color('#191308'),color('#C45AB3'),color('#89937C')],[color('#0081A7'),color('#00AFB9'),color('#291F1E'),color('#FED9B7'),color('#F07167')],[color('#E07A5F'),color('#3D405B'),color('#81B29A'),color('#F2CC8F')],[color('#5F0F40'),color('#9A031E'),color('#FB8B24'),color('#E36414'),color('#0F4C5C')],[color('#c9cba3'),color('#ffe1a8'),color('#e26d5c'),color('#723d46'),color('#472d30')],[color('#dd6e42'),color('#e8dab2'),color('#4f6d7a'),color('#c0d6df'),color('#eaeaea')]];
-  //if (opacity) toggleOpacity();
-
-  //console.log(colorScheme);
-  
+  colorScheme=[[color('#333333'), color('#666A86'), color('#FF6700'), color('#E8DDB5')],[color('#238DA5'),color('#599D6B'), color('#FDBC2E'),color('#C84A4D'), color('#2A303E') ],[color('#FA8334'),color('#1E3888'),color('#191308'),color('#C45AB3'),color('#89937C')],[color('#0081A7'),color('#00AFB9'),color('#291F1E'),color('#FED9B7'),color('#F07167')],[color('#E07A5F'),color('#3D405B'),color('#81B29A'),color('#F2CC8F')],[color('#5F0F40'),color('#9A031E'),color('#FB8B24'),color('#E36414'),color('#0F4C5C')],[color('#c9cba3'),color('#ffe1a8'),color('#e26d5c'),color('#723d46'),color('#472d30')],[color('#dd6e42'),color('#e8dab2'),color('#4f6d7a'),color('#c0d6df'),color('#eaeaea')],[color('#001219'), color('#005F73'), color('#0A9396'), color('#94D2BD'), color('#E9D8A6'), color('#EE9B00'), color('#CA6702'), color('#BB3E03'),color('#AE2012'),color('#9B2226')],[color('#ee4a1b'), color('#61d5d4'), color('#3e73a2'), color('#bebc9e'), color('#060b0a')]];
+  if (opacity) toggleOpacity();
   cs=int(random(0,colorScheme.length));
-
-  //noLoop();
-
   cColors=[255,0];
+
+  //sets dark/light mode based on local time
+  var now = new Date();
+  checkTime(now);
 
   dSpeed=0;
   spdAmt=0.02;
 
   populatePoints();
-
-  //console.log(points);
 }
 
 function draw() {
-  //console.log(autom,pautom);
-
   background(bgColor);
 
-  //noFill();
-  // for (let i=0; i< colorScheme.length; i++){
-  //   for (let j=0; j<colorScheme[i].length;j++){
-  //     stroke(colorScheme[i][j]);
-  //     strokeWeight(5);
-      
-  //   }
-  // }
- 
-  
-//console.log('fdasasd');
-
-
-  // fill(colorScheme[2][1]);
-  // circle(50,50,40);
-  // circle(60,60,40);
-  
   if (autom==true) drawCircle(30,10);
   if (reset==true){
     drawCircle(5,10);
@@ -106,42 +88,29 @@ function draw() {
   for (let i = 0; i < points.length; i++) {
     var P1=points[i];
     P1.drawPoint();
-      var nP=nearestPoint(P1, i);
-      // //gets nearest point to current point
-      P1.minD=minD;
+    var nP=nearestPoint(P1, i);
+    // //gets nearest point to current point
+    P1.minD=minD;
+    if (lines) P1.drawConnected();
     if (!paused) {
       // //calculate vector distance between current point and nearest point and normalizes it
       var minV=createVector(nP.P.x-P1.P.x, nP.P.y-P1.P.y);
       if (minV.mag()>thresholdDist) {
         minV.normalize();
-        var norm=sqrt(sq(minV.x)+sq(minV.y));
-        minV.set(minV.x/norm , minV.y/norm);
 
       //   //update pos for both points
         P1.updateV(minV);
         minV.mult(-1);
         nP.updateV(minV);
       }
-      if (points.length>1) P1.updatePos();
-
+      P1.updatePos();
     }
-    if (lines) P1.drawConnected();
-
-    // for (let i = 0; i < points.length; i++) {
-    //   var P=points[i];
-    //   for (let k=0;k<P.drawn;k++){
-    //     var P2=P.drawn[k];
-    //     console.log('hfasd');
-    //     line(this.P.x, this.P.y, P2.P.x, P2.P.y);
-    //   }
-    // }
-    //console.log("yes");
   }
 
   //console.log(millis(),time,incTime);
   if (millis()-time>=incTime && !paused) {
     //console.log('got here');
-    if (autom==true) addPoint();
+    if (autom==true && points.length+1<pointsLimit) addPoint();
    
     for (let k = 0; k < points.length; k++) {
       var P1=points[k];
@@ -150,30 +119,17 @@ function draw() {
     }
 
     if (lines) connectPoints();
-
-    for (let k = 0; k < points.length; k++) {
-      var P1=points[k];
-      P1.drawConnected();
-    }
-
-  //console.log('sdfasd');
-
     time=millis();
   }
   
 
   if (millis()-rtime>=resetTime && reset==true && !paused){
-    total=int(random(30,60));
-    populatePoints();
-    rtime=millis();
-    //pautom=(autom==false)?true:false;
-    autom=(autom==true)?true:false;
-    pautom=(autom==true)?true:false;
-    //pautom=autom=true;
-    preset=reset=true;
-    //preset=(reset==true)?true:false;
-    //reset=(reset==true)?false:true;
-    
+    resetAll();
+  }
+
+  if (millis()-btime>=bgTime && !paused) {
+    var now = new Date();
+    checkTime(now);
   }
 
   if (keyIsDown(109) || keyIsDown(189)){
@@ -182,8 +138,16 @@ function draw() {
   else if (keyIsDown(187)){
     adjustSpeed(spdAmt);
   }
+  else if (keyIsDown(188)){
+    if (opacityAmt-1>=10) opacityAmt-=1;
+    toggleOpacity();
+  }
+  else if (keyIsDown(190)){
+    if (opacityAmt+1<=255) opacityAmt+=1;
+    toggleOpacity();
+  }
+
   else if (keyIsDown(UP_ARROW)) {
-    //console.log((millis()-atime) >=addTime)
     if (( (millis()-atime) >=addTime) && ((points.length+1)<pointsLimit)){
       //console.log('yes');
       addPoint();
@@ -193,8 +157,7 @@ function draw() {
     
   }
   else if (keyIsDown(DOWN_ARROW)) {
-    //console.log((millis()-atime) >=addTime)
-    if (( (millis()-atime) >=addTime) && ((points.length-1)>0)){
+    if (( (millis()-atime) >=addTime) && ((points.length-1)>1)){
       //console.log('yes');
       points.splice(points.length-1,1);
       total-=1;
@@ -202,10 +165,22 @@ function draw() {
     }
     
   }
+}
 
-  //points.sort(dynamicSort("P.x"));
-  //sort(dataArray, count);
-  //points.sort((a,b)=>(a.P.x < b.P.x) ? -1 : (a.P.x > b.P.x) ? 1 : 0);
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+    
+    circleRadius=map(min(windowWidth,windowHeight),500,1200,4,7);
+    if (circleRadius>7) circleRadius=7;
+
+    //console.log(tempX,windowWidth);
+    //console.log(windowWidth, windowHeight);
+    for (let i=0; i<points.length; i++) {
+      //console.log(points[i].P.x,points[i].P.x/width*windowWidth);
+      points[i].P.x=points[i].P.x/points[i].oCor.x*windowWidth;
+      points[i].P.y=points[i].P.y/points[i].oCor.y*windowHeight;
+      points[i].oCor.set(windowWidth,windowHeight);
+    }
 }
 
 
@@ -215,12 +190,10 @@ function mousePressed() {
   selector=0;
   for (let i=0; i<points.length; i++) {
     if ((abs(mouseX-points[i].P.x)<=mouseRadius) && (abs(mouseY-points[i].P.y)<=mouseRadius) && (mouseButton == LEFT)) {
-      //println("p1", i);
       selector=1;
       si=i;
     }
     if ((abs(mouseX-points[i].P.x)<=mouseRadius) && (abs(mouseY-points[i].P.y)<=mouseRadius) && (mouseButton == RIGHT)) {
-      //println("p1", i);
       points.splice(i,1);
     }
   }
@@ -232,10 +205,8 @@ function mousePressed() {
         points.push(new Point(newP1));
         
         var nP=nearestPoint(points[points.length-1], points.length-1);
-        //console.log(minD);
         connectPoints();
-        //points[points.length - 1].getProperties();
-        total+=1;
+        if (points.length+1<pointsLimit) total+=1;
         rtime=millis();
       }
     }
@@ -255,9 +226,6 @@ function mouseDragged() {
   if (selector>0) {
 
     points[si].movePoint(selector, newP1);
-    //var nP=nearestPoint(points[si], si);
-    //console.log(minD);
-    //points[si].getProperties();
     for (let k = 0; k < points.length; k++) {
       var P1=points[k];
       P1.connected=[];
@@ -267,9 +235,13 @@ function mouseDragged() {
 
 function mouseWheel(event) {
   var e = event.delta;
-  if (lineWeight-e/10>0.1 && lineWeight-e/10<100){
+  if (lineWeight-e/10>2 && lineWeight-e/10<100){
     lineWeight-=e/10;
-    //console.log(lineWeight);
+  }
+  for (let i=0; i<points.length; i++) {
+    if (points[i].sw-e/10>2 && points[i].sw-e/10<100){
+      points[i].sw-=e/10;
+    }
   }
 }
 
@@ -278,7 +250,7 @@ function keyTyped() {
   if (key == ' '|| key=='n') {
       points=[];
       populatePoints();
-      //newColorScheme();
+      newColorScheme();
       rtime=millis();
   }
 
@@ -289,7 +261,7 @@ function keyTyped() {
         autom=false;
       }
       else {
-        if (reset==true) reset=false;
+        //if (reset==true) reset=false;
         pautom=true;
         autom=true;
       }
@@ -313,22 +285,12 @@ function keyTyped() {
 
   if (key == 'k') {
     pLine=(pLine==true)?false:true;
-    //console.log(pLine);
+    for (let k = 0; k < points.length; k++) {
+      points[k].sw=lineWeight;
+    }
   }
 
   if (key == 'l') {
-    // pPoint= (bPoint==true && pPoint==false) ? true: false;
-
-    // if (bPoint==true && pPoint==false && lines==false){
-    //   bPoint=false;
-    //   //pPoint=true;
-    // }
-    // else if (bPoint==true && pPoint==true && lines==false){
-    //   bPoint=true
-    // }
-    // else{
-    //   bPoint=true;
-    // }
     var temp=(bPoint==true)?true:false
 
     if (!pPoint && bPoint && !lines){
@@ -339,20 +301,33 @@ function keyTyped() {
     }
 
     pPoint=(temp==true)?true:false;
-
     lines= (lines==true) ? false: true;
+  }
 
+  if (key==';'){
+    stype=(stype+1)%3
+    switch (stype){
+      case 0:
+        strokeCap(ROUND);
+        break;
+      case 1:
+        strokeCap(SQUARE);
+        break;
+      case 2:
+        strokeCap(PROJECT);
+        break;
+    }
   }
 
   if (key == 'm') {
-    bPoint= (bPoint==true) ? false: true;
-    pPoint=!bPoint;
+    if (!(bPoint==true && lines==false)){
+      bPoint= (bPoint==true) ? false: true;
+      pPoint=!bPoint;
+    }
   }
   
 
   if (key == 'r' && !paused) {
-    // if (reset==true) reset=false;
-    // else reset=true;
     if (reset==true){
         preset=false;
         reset=false;
@@ -361,6 +336,12 @@ function keyTyped() {
         preset=true;
         reset=true;
       }
+  }
+
+  if (key == 'o') {
+    opacity= (opacity==true) ? false: true;
+    colorScheme=[[color('#333333'), color('#666A86'), color('#FF6700'), color('#E8DDB5')],[color('#238DA5'),color('#599D6B'), color('#FDBC2E'),color('#C84A4D'), color('#2A303E') ],[color('#FA8334'),color('#1E3888'),color('#191308'),color('#C45AB3'),color('#89937C')],[color('#0081A7'),color('#00AFB9'),color('#291F1E'),color('#FED9B7'),color('#F07167')],[color('#E07A5F'),color('#3D405B'),color('#81B29A'),color('#F2CC8F')],[color('#5F0F40'),color('#9A031E'),color('#FB8B24'),color('#E36414'),color('#0F4C5C')],[color('#c9cba3'),color('#ffe1a8'),color('#e26d5c'),color('#723d46'),color('#472d30')],[color('#dd6e42'),color('#e8dab2'),color('#4f6d7a'),color('#c0d6df'),color('#eaeaea')],[color('#001219'), color('#005F73'), color('#0A9396'), color('#94D2BD'), color('#E9D8A6'), color('#EE9B00'), color('#CA6702'), color('#BB3E03'),color('#AE2012'),color('#9B2226')],[color('#ee4a1b'), color('#61d5d4'), color('#3e73a2'), color('#bebc9e'), color('#060b0a')]];
+    if (opacity) toggleOpacity();
   }
 
   if (key == 'p') {
@@ -397,7 +378,7 @@ function keyTyped() {
   }
 
   if(key=='v'){
-    invertLines();
+    invertLines(true);
   }
 
   if (key=='x'){
@@ -405,40 +386,52 @@ function keyTyped() {
   }
 }
 
+function resetAll(){
+    total=int(random(30,60));
+    populatePoints();
+    rtime=millis();
+    autom=(autom==true)?true:false;
+    pautom=(autom==true)?true:false;
+    preset=reset=true;
+    bPoint=pPoint=false;
+    lines=true;
+    newColorScheme();
+}
+
+function checkTime(someDate){
+    //(not inverted and night) or (inverted and day)
+    if (  ((someDate.getHours()>=18 || someDate.getHours()<6) && cColors[1]==0) ||  (someDate.getHours()>=6 && someDate.getHours()<18 && cColors[1]==255) ){
+      invertLines(true);
+      invertBgP();
+      //invertLines(false);
+    }
+}
+
 function adjustSpeed(amt){
   for (let k = 0; k < points.length; k++) {
       var P1=points[k];
-      if ( (amt>0 && P1.speed+amt<3) || (amt<0 && P1.speed+amt>0.5) ){
+      if ( (amt>0 && P1.speed+amt<3) || (amt<0 && P1.speed+amt>0.1) ){
         P1.speed+=amt;
       }
     }
 
   if( (amt>0 && dSpeed<3) || (amt<0 && dSpeed>0)) dSpeed+=amt;
-
-  // var speeds=[];
-  // for (let k = 0; k < points.length; k++) {
-  //   var P1=points[k];
-  //   speeds.push(P1.speed);
-  // }
-  //var maxValue = Math.max(...speeds);
-  //var minValue = Math.min(...speeds);
-  //console.log(minValue,maxValue,dSpeed);
 }
 
 function toggleOpacity(){
-  console.log(colorScheme);
   for (let i=0;i<colorScheme.length;i++){
     for (let j=0;j<colorScheme[i].length;j++){
-      //for (let k=0; k<3; k++){
       colorScheme[i][j].setAlpha(opacityAmt);
-      //console.log(colorScheme[i][j].levels);
     }
   }
 }
 
 function newColorScheme(){
-  colorScheme=[[color('#333333'), color('#666A86'), color('#FF6700'), color('#E8DDB5')],[color('#238DA5'),color('#599D6B'), color('#FDBC2E'),color('#C84A4D'), color('#2A303E') ],[color('#FA8334'),color('#1E3888'),color('#191308'),color('#C45AB3'),color('#89937C')],[color('#0081A7'),color('#00AFB9'),color('#291F1E'),color('#FED9B7'),color('#F07167')],[color('#E07A5F'),color('#3D405B'),color('#81B29A'),color('#F2CC8F')],[color('#5F0F40'),color('#9A031E'),color('#FB8B24'),color('#E36414'),color('#0F4C5C')],[color('#c9cba3'),color('#ffe1a8'),color('#e26d5c'),color('#723d46'),color('#472d30')],[color('#dd6e42'),color('#e8dab2'),color('#4f6d7a'),color('#c0d6df'),color('#eaeaea')]];
-  //if (opacity) toggleOpacity();
+  colorScheme=[[color('#333333'), color('#666A86'), color('#FF6700'), color('#E8DDB5')],[color('#238DA5'),color('#599D6B'), color('#FDBC2E'),color('#C84A4D'), color('#2A303E') ],[color('#FA8334'),color('#1E3888'),color('#191308'),color('#C45AB3'),color('#89937C')],[color('#0081A7'),color('#00AFB9'),color('#291F1E'),color('#FED9B7'),color('#F07167')],[color('#E07A5F'),color('#3D405B'),color('#81B29A'),color('#F2CC8F')],[color('#5F0F40'),color('#9A031E'),color('#FB8B24'),color('#E36414'),color('#0F4C5C')],[color('#c9cba3'),color('#ffe1a8'),color('#e26d5c'),color('#723d46'),color('#472d30')],[color('#dd6e42'),color('#e8dab2'),color('#4f6d7a'),color('#c0d6df'),color('#eaeaea')],[color('#001219'), color('#005F73'), color('#0A9396'), color('#94D2BD'), color('#E9D8A6'), color('#EE9B00'), color('#CA6702'), color('#BB3E03'),color('#AE2012'),color('#9B2226')],[color('#ee4a1b'), color('#61d5d4'), color('#3e73a2'), color('#bebc9e'), color('#060b0a')]];
+  if (iLines==true){
+    invertLines(false);
+  }
+  if (opacity) toggleOpacity();
 
   cs=int(random(0,colorScheme.length));
     for (let k = 0; k < points.length; k++) {
@@ -449,11 +442,12 @@ function newColorScheme(){
 
 
 function invertColors(){
-  invertLines();
+  invertLines(true);
   invertBgP();
 }
 
-function invertLines(){
+function invertLines(riLines){
+  if (riLines==true) iLines= (iLines==true) ? false: true;
   for (let i=0;i<colorScheme.length;i++){
     for (let j=0;j<colorScheme[i].length;j++){
       for (let k=0; k<3; k++){
@@ -471,21 +465,16 @@ function randomizeLineColor(){
       }
     }
   }
-  //cs=int(random(0,colorScheme.length));
-    //for (let k = 0; k < points.length; k++) {
-      //var P1=points[k];
-      //P1.c=int(random(0,colorScheme[cs].length));
-   // }
 }
 
 
 function invertBgP(){
+  iBg=(iBg==true)?false:true;
   for (let j=0; j<3; j++){
     bgColor.levels[j]=255-bgColor.levels[j]
     dotColor.levels[j]=255-dotColor.levels[j]
   }
   cColors=[cColors[1],cColors[0]];
-  //console.log(cColors);
 }
 
 function invertColor(hex) {
@@ -525,11 +514,10 @@ function drawCircle(space,radius){
 }
 
 function addPoint(){
-  if (points.length<pointsLimit){
+  if (points.length+1<pointsLimit){
     var P=createVector(random(borderDist, width-borderDist), random(borderDist, height-borderDist));
     points.push(new Point(P));
     total+=1;
-    //rtime=millis();
   }
 }
 
@@ -539,6 +527,7 @@ function populatePoints(){
     P=createVector(random(borderDist, width-borderDist), random(borderDist, height-borderDist));
     points.push(new Point(P));
   }
+
 }
 
 
@@ -570,19 +559,27 @@ function connectPoints() {
       var P2=points[j];
       var dd=int(P1.distance(P2));
       if ((int(P1.minD)-lineDist<= (dd)) && ((dd) <= int(P1.minD)+lineDist)) {
-        //line(P1.P.x,P1.P.y,P2.P.x,P2.P.y);
         P1.connect(P2);
       }
     }
   }
-
-  // var end = new Date();
-  // var millisecondsElapsed = end - start;
-  //console.log(millisecondsElapsed);
-
-
 }
 
+
+function lineThickness(p1,p2,i){
+    if (pLine && millis()-p1.ltime>lineTime && !paused){
+      var nP=nearestPoint(p1, i);
+      p1.minD=minD;
+      var lw=map(p1.distance(p2), p1.minD, p1.minD+lineDist, lineWeight/3, lineWeight*1.5);
+
+      if (lw>lineWeight*2) lw=lineWeight*1.5;
+      else if (lw<2) lw=2;
+      p1.ltime=millis();
+      p1.sw=lw;
+      return lw;
+    }
+    return p1.sw;
+  }  
 
 
 
@@ -597,7 +594,10 @@ class Point {
     this.connected=[];
     this.drawn=[];
     //this.c=colorScheme[int(random(0, colorScheme.length))];
-    this.c=int(random(0, colorScheme[cs].length  ));
+    this.c=int(random(0, colorScheme[cs].length));
+    this.oCor=createVector(width,height);
+    this.sw=lineWeight;
+    this.ltime=millis();
   }
 
   getProperties(){
@@ -605,7 +605,8 @@ class Point {
   }
 
   connect(P2) {
-    this.connected.push(P2);
+    //this.connected.push(P2);
+    if (this.connected.includes(P2)==false) this.connected.push(P2);
   }
 
 
@@ -643,33 +644,19 @@ class Point {
   }
 
   drawConnected() {
-    //println(this.connected.size());
     for (let i=0; i<this.connected.length; i++) {
       var P2=this.connected[i];
-      //stroke(this.c[0],this.c[1],this.c[2]);
-      //console.log(colorScheme[cs][this.c]);
       var ccolor=colorScheme[cs][this.c]
-      //if (opacity) ccolor.setAlpha(10);
       stroke(ccolor);
-      //console.log(colorScheme);
-      //var lw=float(lineWeight);
-      //strokeWeight(lineWeight);
-
       if (P2.drawn.includes(this)==false) {
+
         var lw=float(lineWeight);
-        if (pLine){
-          lw=map(this.distance(P2), this.minD, this.minD+lineDist, lineWeight/2, lineWeight*2);
-          //console.log(lw);
-          // if (lw>lineWeight+2){
-          //   lw=lw+2;
-          // }
-        }
-        strokeWeight(lw);
+        this.sw=lineThickness(this,P2,i);
+        strokeWeight(this.sw);
         line(this.P.x, this.P.y, P2.P.x, P2.P.y);
         this.drawn.push(P2);
       }
     }
   }
-  
 
 }
