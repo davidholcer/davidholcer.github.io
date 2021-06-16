@@ -38,7 +38,7 @@ function setup() {
   thresholdDist=2;
   borderDist=50;
   lineDist=20;
-  circleRadius=3.5;
+  circleRadius=map(min(windowWidth,windowHeight),500,1200,4,7);
   lineWeight=4;
 
   iLines=iBg=false;
