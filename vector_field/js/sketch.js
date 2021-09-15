@@ -1,3 +1,7 @@
+//Created by David Holcer
+//Non-commercial license
+//Sep 15,2021
+
 let points=[];
 let stars=[];
 let total;
@@ -32,7 +36,7 @@ function setup() {
 
   cols=[color(random(360),random(50,100),random(30,60))]
   cols.push(color(hue(cols[0])+Math.sign(randomOffset.x)*map(abs(randomOffset.x),0,100,100,200),saturation(cols[0])+map(randomOffset.x,-100,100,-40,40),100-brightness(cols[0])));
-  
+
   // cols=[color('#EC3822'),color('#E7863A'),color('#00654F'),color('#E8C5A9'),color('#798A70')];
   showField=false;
   lines=true;
