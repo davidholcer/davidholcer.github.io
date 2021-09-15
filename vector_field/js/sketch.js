@@ -315,11 +315,11 @@ function equation(P){
   etime=(millis()-start+prev)/1000/efactor;
   ar=lerp(1/8,3/8,lerpFunc(etime,3));
   br=lerp(1/8,3/8,lerpFunc(etime,6));
-  // let vec1=createVector(P.y+t*randomOffset.y+paraEllipse(etime,ar,br).x,-P.x+t*randomOffset.x+paraEllipse(etime,ar,br).y).normalize();
-  let vec2=createVector(abs(randomOffset.x)*(P.y+t*randomOffset.y+paraEllipse(etime,ar,br).x),abs(randomOffset.y)*(-P.x+t*randomOffset.x+paraEllipse(etime,ar,br).y)).normalize();
+  let vec1=createVector(P.y+t*randomOffset.y+paraEllipse(etime,ar,br).x,-P.x+t*randomOffset.x+paraEllipse(etime,ar,br).y).normalize();
+  // let vec2=createVector(abs(randomOffset.x)*(P.y+t*randomOffset.y+paraEllipse(etime,ar,br).x),abs(randomOffset.y)*(-P.x+t*randomOffset.x+paraEllipse(etime,ar,br).y)).normalize();
   // let vec2=createVector(P.y+randomOffset.x+t*randomOffset.y+paraEllipse(etime,ar,br).x,-P.x+randomOffset.y+t*randomOffset.x+paraEllipse(etime,ar,br).y).normalize();
   // let vec3=vec1.add(vec2).normalize();
-  return vec2;
+  return vec1;
   //(1,0)=(t*randomOffset.x+paraEllipse(vtime,ar,br).y,1-paraEllipse(vtime,ar,br).x-t*randomOffset.y) 
 }
 // let equation = (P) => {let vtime=(millis()-start+prev)/1000;return createVector(P.y+t*randomOffset.y+paraEllipse(vtime).x,-P.x+t*randomOffset.x+paraEllipse(vtime).y).normalize();}
