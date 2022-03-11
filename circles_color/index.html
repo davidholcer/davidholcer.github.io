@@ -1,26 +1,21 @@
-<!DOCTYPE html>
-<html lang="">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>circles</title>
-  <style>
-    body {
+<!doctype html><html lang=""><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>circles</title><style>body {
       padding: 0;
       margin: 0;
       overflow: hidden;
-    }
-  </style>
-  <!-- <meta property="og:image" content="thumbnail.jpeg" /> -->
-  <script src="./p5.min.js"></script>
-  <!-- <script src="../addons/p5.sound.js"></script> -->
-  <!-- <script src="https://unpkg.com/p5.createloop@0.2.8/dist/p5.createloop.js"></script> -->
-  <script id="fxhash-snippet">
-    //---- do not edit the following code (you can indent as you wish)
+    }</style><script src="./p5.min.js"></script><script id="fxhash-snippet">//---- do not edit the following code (you can indent as you wish)
     let alphabet = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
     var fxhash = "oo" + Array(49).fill(0).map(_=>alphabet[(Math.random()*alphabet.length)|0]).join('')
-    let b58dec = (str) => str.split('').reduce((p,c,i) => p + alphabet.indexOf(c) * (Math.pow(alphabet.length, str.length-i-1)), 0)
+    // var fxhash="oogLgBVEEaZxGevR3ZhVY6Ze3rEP1j2AVdmXm6hgH1kgmLSyQhX"
+    // var fxhash="ooBY6Z6h2oUt8AXKVsR1SZQitvx3U5XVFWz7uQ92LASK1yskaqD";
+    // var fxhash="oo5ujPWqqmJLhg5ooPb6iuBJ5Fs165o8kAyjjRT5oRhWoUjqiC5";
+    // var fxhash="oofMBe9GgMstW7wkzxTZr4CC9NUGzVsYPxFyF6qXApccrSBPPYq";
+    // var fxhash="oo3sVTtM1vFzo2SG2hiNGXJ19zYvWrtxsDRe4jACY7rjB7YHBDf";
+    // var fxhash="ooRrEj8wbnAiizW7MsK4HSAMdsV5qyDqtUgmUvPRQuQbrz3isXn";
+    // ooDHG3ndbP8BJ2HpWbJ3bn1a2zQC4M9KBZStsGRqQWez1Xmdteg
+    // oo9DW7BUyHy8agi2amZWHeejTb7S33V2okFcXMsxzYvxV2PP77T
+    //ooLfGbATn2pREFRKKqWvdfG7bwbxNapcFHvWshdAy5wZLFi3PJu
+    //oo2J3WhCjen8PE2UQwWp8JpgANPBBet2juSYghSJ52PGcKSBzFD
+    let b58dec = str=>[...str].reduce((p,c)=>p*alphabet.length+alphabet.indexOf(c)|0, 0)
     let fxhashTrunc = fxhash.slice(2)
     let regex = new RegExp(".{" + ((fxhashTrunc.length/4)|0) + "}", 'g')
     let hashes = fxhashTrunc.match(regex).map(h => b58dec(h))
@@ -37,14 +32,8 @@
       }
     }
     var fxrand = sfc32(...hashes)
-    //---- /do not edit the following code
-  </script>
-  <script src="./sketch.js"></script>
-</head>
-
-<body>
-  <main>
-  </main>
-</body>
-
-</html>
+    // call this method to trigger the preview
+    function fxpreview() {
+      console.log("fxhash: TRIGGER PREVIEW")
+    }
+    //---- /do not edit the following code</script><script src="./sketch.js"></script></head><body><main></main><script defer="defer" src="./bundle.js"></script></body></html>
