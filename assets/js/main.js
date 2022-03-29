@@ -59,14 +59,14 @@
       });
 
       let portfolioFilters = select('#filters a', true);
-
+      // console.log(portfolioFilters);
       on('click', '#filters a', function(e) {
         e.preventDefault();
         portfolioFilters.forEach(function(el) {
           el.classList.remove('active');
         });
         this.classList.add('active');
-
+        // console.log(this);
         portfolioIsotope.arrange({
           filter: this.getAttribute('data-filter')
         });

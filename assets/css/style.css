@@ -45,6 +45,10 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   padding: 4rem 0;
 }
 
+.pb-5c {
+  padding: 3rem 0 4rem;
+}
+
 .filters a {
   text-decoration: none;
   color: #000;
