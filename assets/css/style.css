@@ -9,21 +9,28 @@
 # General
 --------------------------------------------------------------*/
 @font-face {
-  font-family: "Garet";
-  src: url('assets/fonts/Garet-Book.ttf');
+  font-family: "NeauMontreal";
+  src: url("../fonts/PPNeueMontreal-Regular.woff2") format('woff');
   font-weight: normal;
-  font-style: normal;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "Garet";
-  src: url('assets/fonts/Garet-Heavy.ttf');
-  font-weight: bold;
+  font-family: "NeauMontreal";
+  src: url("../fonts/PPNeueMontreal-Regular.woff2") format('woff');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: "NeauMontreal";
+  src: url("../fonts/PPNeueMontreal-Light.woff2") format('woff');
+  font-weight: 200;
   font-style: normal;
 }
 
 body {
-  font-family: "Garet", monospace;
+  font-family: "NeauMontreal", monospace;
   color: #0d1e2d;
   background-color: #F2F4F3;
 }
@@ -38,7 +45,7 @@ a:hover {
 }
 
 h1, h2, h3, h4, h5, h6, .font-heading {
-  font-family: "Garet", sans-serif;
+  font-family: "NeauMontreal", sans-serif;
 }
 
 .section {
